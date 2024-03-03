@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en" itemscope itemtype="http://schema.org/Person">
+<head>
+  <meta charset="utf-8">
+  <!-- Site Meta Data -->
+  <title>Brother ADW 2700W scan to smtp using office365</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="Martin Barlow">
+
+  <link rel="shortcut icon" href="">
+
+  <!-- schema.org -->
+  <meta itemprop="name" content="(Marty) Martin Barlow">
+  <meta itemprop="image" content="">
+  <meta itemprop="description" content="">
+
+  <!-- Style Meta Data -->
+  <link rel="stylesheet" href="file:///home/mbarlow/blog/output/theme/css/milligram.css" type="text/css" />
+  <link rel="stylesheet" href="file:///home/mbarlow/blog/output/theme/css/custom.css" type="text/css" />
+
+  <!-- Feed Meta Data -->
+
+  <!-- Twitter Feed -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="">
+  <meta name="twitter:image" content="">
+
+<meta name="twitter:creator" content="">
+<meta name="twitter:url" content="file:///home/mbarlow/blog/output/brother-adw-2700w-scan-to-smtp-using-office365.html">
+<meta name="twitter:title" content="(Marty) Martin Barlow ~ Brother ADW 2700W scan to smtp using office365">
+<meta name="twitter:description" content="Microsoft have been ramping up the security of their endpoints and its getting more complicated to get old devices to continue working. TLS1.2 now required by default https://docs.microsoft.com/en-us/microsoft-365/compliance/prepare-tls-1.2-in-office-365?view=o365-worldwide My device is TLS 1.1 though, and i dont have …">
+
+<!-- Facebook Meta Data -->
+<meta property="og:title" content="(Marty) Martin Barlow ~ Brother ADW 2700W scan to smtp using office365" />
+<meta property="og:description" content="Microsoft have been ramping up the security of their endpoints and its getting more complicated to get old devices to continue working. TLS1.2 now required by default https://docs.microsoft.com/en-us/microsoft-365/compliance/prepare-tls-1.2-in-office-365?view=o365-worldwide My device is TLS 1.1 though, and i dont have …" />
+<meta property="og:image" content="" />
+</head>
+
+<body>
+    <div class="container">
+
+    <!-- Navbar -->
+      <div class="navbar">
+        <ul>
+            <div>
+                <li>
+                    <a href="file:///home/mbarlow/blog/output"><h3>(Marty) Martin Barlow</h3></a>
+                </li>
+                <li>
+                </li>
+            </div>
+        </ul>
+      </div>
+
+  <!-- Sidebar -->
+    <sidebar>
+        <ul class="static-item">
+
+        </ul>        
+
+        <ul>
+        </ul>
+
+   
+        <p> 
+                <span>
+                    <a href="https://www.linkedin.com/in/mabarlow" target="_blank">
+                        <img class="social-icons-m" src="file:///home/mbarlow/blog/output/theme/images/icons/linkedin.png">
+                    </a>
+                </span>
+                <span>
+                    <a href="https://mastodon.social/@martybarlow" target="_blank">
+                        <img class="social-icons-m" src="file:///home/mbarlow/blog/output/theme/images/icons/mastodon.png">
+                    </a>
+                </span>
+                <span>
+                    <a href="https://signal.me/#eu/balhA_0L4DZVW5kM8oJ4KhN8TRgLyRO3VaH_RXp7v3moGDnIxh5KFYjjGvsmTVZC" target="_blank">
+                        <img class="social-icons-m" src="file:///home/mbarlow/blog/output/theme/images/icons/signal.png">
+                    </a>
+                </span>
+        </p>
+        <p>
+        </p>
+        <p>
+        </p>
+    </sidebar>
+    
+    <maincontent>
+<h2>
+    <a href="file:///home/mbarlow/blog/output/brother-adw-2700w-scan-to-smtp-using-office365.html" rel="bookmark" title="Permalink to Brother ADW 2700W scan to smtp using office365">Brother ADW 2700W scan to smtp using office365</a>
+</h2>
+
+<div>
+    <b>On: </b>Sat 23 July 2022
+    <hr>
+</div>
+
+<div>
+    <mainarticle>
+    <p>Microsoft have been ramping up the security of their endpoints and its getting more complicated to get old devices to continue working.</p>
+<h1>TLS1.2 now required by default</h1>
+<blockquote>
+<p>https://docs.microsoft.com/en-us/microsoft-365/compliance/prepare-tls-1.2-in-office-365?view=o365-worldwide</p>
+</blockquote>
+<p>My device is TLS 1.1 though, and i dont have a way to update the firmware to support TLS1.2 or TLS1.3</p>
+<p>So Microsoft have a legacy TLS 1.1 endpoint endpoint which you can enable</p>
+<blockquote>
+<p>https://techcommunity.microsoft.com/t5/exchange-team-blog/new-opt-in-endpoint-available-for-smtp-auth-clients-still/ba-p/2659652</p>
+</blockquote>
+<p>Once enabled, you have to configured your devices to use <strong>smtp-legacy.office365.com</strong></p>
+<p><img alt="image of office365 configuration screen showing how to enable smtp-legacy.office365.com" src="file:///home/mbarlow/blog/output/images/screenshot-from-2022-07-23-09-22-00.png">
+Microsoft is phasing out SMTP-AUTH in favour of OAUTH</p>
+<p>SMTP-AUTH or basic auth is getting phased out. But similarly, devices dont support OAUTH yet.</p>
+<p>So, you have to reenable SMTP-AUTH</p>
+<blockquote>
+<p>https://docs.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/deprecation-of-basic-authentication-exchange-online
+https://techcommunity.microsoft.com/t5/microsoft-entra-azure-ad-blog/introducing-security-defaults/ba-p/1061414</p>
+</blockquote>
+<p>You have to enable it in exchange in screen shot above, but ALSO you need to disable default security in azure.
+<img alt="disable security defaults" src="file:///home/mbarlow/blog/output/images/screenshot-from-2022-07-23-09-32-50.png"></p>
+<p>Use app password since you have 2fa enabled</p>
+<p>Finally since you have 2fa enabled, you will need to create an app password for you device to use.</p>
+    </mainarticle>
+</div>
+<hr>
+        
+<p><i>Drop me a line using one of the contact methods </i></p>
+        
+    </maincontent>
+
+  <!-- Analytics -->
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en" itemscope itemtype="http://schema.org/Person">
+<head>
+  <meta charset="utf-8">
+  <!-- Site Meta Data -->
+  <title>Getting pam-krb5 working with cifs and autofs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="Martin Barlow">
+
+  <link rel="shortcut icon" href="">
+
+  <!-- schema.org -->
+  <meta itemprop="name" content="(Marty) Martin Barlow">
+  <meta itemprop="image" content="">
+  <meta itemprop="description" content="">
+
+  <!-- Style Meta Data -->
+  <link rel="stylesheet" href="file:///home/mbarlow/blog/output/theme/css/milligram.css" type="text/css" />
+  <link rel="stylesheet" href="file:///home/mbarlow/blog/output/theme/css/custom.css" type="text/css" />
+
+  <!-- Feed Meta Data -->
+
+  <!-- Twitter Feed -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="">
+  <meta name="twitter:image" content="">
+
+<meta name="twitter:creator" content="">
+<meta name="twitter:url" content="file:///home/mbarlow/blog/output/getting-pam-krb5-working-with-cifs-and-autofs.html">
+<meta name="twitter:title" content="(Marty) Martin Barlow ~ Getting pam-krb5 working with cifs and autofs">
+<meta name="twitter:description" content="The recent update to ubuntu 17.04 broke everything about my setup, so i had to spend a lot of time understanding what changed so i could fix it. pam-krb5 uses by default a slightly different path to the default for its credential cache. /tmp/krb5cc_UID_RANDOM where UID is the …">
+
+<!-- Facebook Meta Data -->
+<meta property="og:title" content="(Marty) Martin Barlow ~ Getting pam-krb5 working with cifs and autofs" />
+<meta property="og:description" content="The recent update to ubuntu 17.04 broke everything about my setup, so i had to spend a lot of time understanding what changed so i could fix it. pam-krb5 uses by default a slightly different path to the default for its credential cache. /tmp/krb5cc_UID_RANDOM where UID is the …" />
+<meta property="og:image" content="" />
+</head>
+
+<body>
+    <div class="container">
+
+    <!-- Navbar -->
+      <div class="navbar">
+        <ul>
+            <div>
+                <li>
+                    <a href="file:///home/mbarlow/blog/output"><h3>(Marty) Martin Barlow</h3></a>
+                </li>
+                <li>
+                </li>
+            </div>
+        </ul>
+      </div>
+
+  <!-- Sidebar -->
+    <sidebar>
+        <ul class="static-item">
+
+        </ul>        
+
+        <ul>
+        </ul>
+
+   
+        <p> 
+                <span>
+                    <a href="https://www.linkedin.com/in/mabarlow" target="_blank">
+                        <img class="social-icons-m" src="file:///home/mbarlow/blog/output/theme/images/icons/linkedin.png">
+                    </a>
+                </span>
+                <span>
+                    <a href="https://mastodon.social/@martybarlow" target="_blank">
+                        <img class="social-icons-m" src="file:///home/mbarlow/blog/output/theme/images/icons/mastodon.png">
+                    </a>
+                </span>
+                <span>
+                    <a href="https://signal.me/#eu/balhA_0L4DZVW5kM8oJ4KhN8TRgLyRO3VaH_RXp7v3moGDnIxh5KFYjjGvsmTVZC" target="_blank">
+                        <img class="social-icons-m" src="file:///home/mbarlow/blog/output/theme/images/icons/signal.png">
+                    </a>
+                </span>
+        </p>
+        <p>
+        </p>
+        <p>
+        </p>
+    </sidebar>
+    
+    <maincontent>
+<h2>
+    <a href="file:///home/mbarlow/blog/output/getting-pam-krb5-working-with-cifs-and-autofs.html" rel="bookmark" title="Permalink to Getting pam-krb5 working with cifs and autofs">Getting pam-krb5 working with cifs and autofs</a>
+</h2>
+
+<div>
+    <b>On: </b>Mon 17 April 2017
+    <hr>
+</div>
+
+<div>
+    <mainarticle>
+    <p>The recent update to ubuntu 17.04 broke everything about my setup, so i had to spend a lot of time understanding what changed so i could fix it.</p>
+<p>pam-krb5 uses by default a <a href="href=%22https://www.eyrie.org/~eagle/software/pam-krb5/pam-krb5.html">slightly different path to the default for its credential cache</a>.</p>
+<div class="highlight"><pre><span></span><code>/tmp/krb5cc_UID_RANDOM where UID is the user&#39;s UID and RANDOM is six randomly-chosen letters
+</code></pre></div>
+
+<p>cifs-utils has a helper function called cifs.upcall. It has had many changes over the last year. Notably 6.6 changed the way that correct credential caches was found.</p>
+<p>Prior to 6.5, it would search for all cache files in <i class="file">/tmp/krb5cc</i>* and see if the owner matched the requestor.</p>
+<p>We can see this behaviour here:</p>
+<p>```Apr  9 17:33:09 rif cifs.upcall: key description: cifs.spnego;0;0;39010000;ver=0x2;host=server;ip4=192.168.50.2;sec=krb5;uid=0x0;creduid=0x44c;user=root;pid=0x8bb
+Apr  9 17:33:09 rif cifs.upcall: ver=2
+Apr  9 17:33:09 rif cifs.upcall: host=server
+Apr  9 17:33:09 rif cifs.upcall: ip=192.168.50.2
+Apr  9 17:33:09 rif cifs.upcall: sec=1
+Apr  9 17:33:09 rif cifs.upcall: uid=0
+Apr  9 17:33:09 rif cifs.upcall: creduid=1100
+Apr  9 17:33:09 rif cifs.upcall: user=root
+Apr  9 17:33:09 rif cifs.upcall: pid=2235
+Apr  9 17:33:09 rif cifs.upcall: find_krb5_cc: considering /tmp/krb5cc_1100_drGvxJ
+Apr  9 17:33:09 rif cifs.upcall: find_krb5_cc: FILE:/tmp/krb5cc_1100_drGvxJ is not a valid credcache.
+Apr  9 17:33:09 rif cifs.upcall: find_krb5_cc: considering /tmp/krb5cc_0
+Apr  9 17:33:09 rif cifs.upcall: find_krb5_cc: FILE:/tmp/krb5cc_0 is valid ccache
+Apr  9 17:33:09 rif cifs.upcall: handle_krb5_mech: getting service ticket for grunt.variar.net
+Apr  9 17:33:09 rif cifs.upcall: handle_krb5_mech: obtained service ticket
+Apr  9 17:33:09 rif cifs.upcall: Exit status 0</p>
+<div class="highlight"><pre><span></span><code><span class="n">After</span><span class="w"> </span><span class="mf">6.6</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">requires</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">credential</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">hard</span><span class="w"> </span><span class="n">coded</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">krb5</span><span class="o">.</span><span class="n">conf</span><span class="w"> </span><span class="n">file</span><span class="o">.</span>
+
+<span class="mf">6.7</span><span class="w"> </span><span class="n">additionally</span><span class="w"> </span><span class="n">had</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">extra</span><span class="w"> </span><span class="n">feature</span><span class="w"> </span><span class="n">whereby</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">could</span><span class="w"> </span><span class="n">find</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">KRB5CCNAME</span><span class="w"> </span><span class="n">environment</span><span class="w"> </span><span class="n">variable</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">other</span><span class="w"> </span><span class="n">session</span><span class="o">.</span>
+
+<span class="n">Once</span><span class="w"> </span><span class="n">its</span><span class="w"> </span><span class="n">working</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">look</span><span class="w"> </span><span class="n">something</span><span class="w"> </span><span class="n">like</span><span class="p">:</span>
+</code></pre></div>
+
+<p>Apr 17 22:27:38 rif cifs.upcall: key description: cifs.spnego;0;0;39010000;ver=0x2;host=server;ip4=192.168.50.2;sec=krb5;ui
+d=0x44c;creduid=0x44c;user=root;pid=0x3584
+Apr 17 22:27:38 rif cifs.upcall: ver=2
+Apr 17 22:27:38 rif cifs.upcall: host=server
+Apr 17 22:27:38 rif cifs.upcall: ip=192.168.50.2
+Apr 17 22:27:38 rif cifs.upcall: sec=1
+Apr 17 22:27:38 rif cifs.upcall: uid=1100
+Apr 17 22:27:38 rif cifs.upcall: creduid=1100
+Apr 17 22:27:38 rif cifs.upcall: user=root
+Apr 17 22:27:38 rif cifs.upcall: pid=13700
+Apr 17 22:27:38 rif cifs.upcall: get_cachename_from_process_env: pathname=/proc/13700/environ
+Apr 17 22:27:38 rif cifs.upcall: get_existing_cc: default ccache is FILE:/tmp/krb5cc_1100
+Apr 17 22:27:38 rif cifs.upcall: handle_krb5_mech: getting service ticket for grunt.variar.net
+Apr 17 22:27:38 rif cifs.upcall: handle_krb5_mech: obtained service ticket
+Apr 17 22:27:38 rif cifs.upcall: Exit status 0</p>
+<div class="highlight"><pre><span></span><code><span class="nv">The</span><span class="w"> </span><span class="nv">trick</span><span class="w"> </span><span class="nv">to</span><span class="w"> </span><span class="nv">getting</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="nv">working</span><span class="w"> </span><span class="nv">was</span><span class="w"> </span><span class="nv">in</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">krb5</span>.<span class="nv">conf</span>.<span class="w"> </span><span class="nv">I</span><span class="w"> </span><span class="nv">have</span><span class="w"> </span><span class="nv">to</span><span class="w"> </span><span class="nv">configure</span><span class="w"> </span><span class="nv">both</span><span class="w"> </span><span class="nv">kerberos</span><span class="w"> </span><span class="nv">and</span><span class="w"> </span><span class="nv">pam</span><span class="o">-</span><span class="nv">krb5</span><span class="w"> </span><span class="nv">to</span><span class="w"> </span><span class="nv">use</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">same</span><span class="w"> </span><span class="nv">file</span>.<span class="w"> </span><span class="nv">My</span><span class="w"> </span><span class="k">end</span><span class="w"> </span><span class="nv">config</span><span class="w"> </span><span class="nv">looks</span><span class="w"> </span><span class="nv">like</span><span class="w"> </span><span class="nv">the</span><span class="w"> </span><span class="nv">following</span>:
+</code></pre></div>
+
+<p>[libdefaults]
+default_realm = MYREALM.NET
+forwardable = true
+proxiable = true
+default_ccache_name = FILE:/tmp/krb5cc_%{euid}</p>
+<p>[realms]
+MYREALM.NET = {
+kdc = kdc.myrealm.net
+admin_server = kdc.myrealm.net
+}</p>
+<p>[appdefaults]
+pam = {
+ccache = FILE:/tmp/krb5cc_%u
+}</p>
+<div class="highlight"><pre><span></span><code><span class="n">Critical</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">above</span><span class="w"> </span><span class="n">working</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">creduid</span><span class="o">.</span><span class="w"> </span><span class="n">This</span><span class="w"> </span><span class="n">variable</span><span class="w"> </span><span class="n">tells</span><span class="w"> </span><span class="n">mount</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">cifs</span><span class="o">.</span><span class="n">upcall</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">whose</span><span class="w"> </span><span class="n">behalf</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">operation</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">made</span><span class="o">.</span>
+
+<span class="n">So</span><span class="p">,</span><span class="w"> </span><span class="n">when</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="n">login</span><span class="w"> </span><span class="n">via</span><span class="w"> </span><span class="n">pam</span><span class="p">,</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">manually</span><span class="w"> </span><span class="n">do</span><span class="w"> </span><span class="n">kinit</span><span class="p">,</span><span class="w"> </span><span class="n">my</span><span class="w"> </span><span class="n">credential</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">always</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">same</span><span class="w"> </span><span class="n">place</span><span class="p">:</span>
+<span class="err">```</span><span class="n">klist</span>
+<span class="n">Ticket</span><span class="w"> </span><span class="n">cache</span><span class="p">:</span><span class="w"> </span><span class="n">FILE</span><span class="p">:</span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">krb5cc_1100</span>
+<span class="n">Default</span><span class="w"> </span><span class="n">principal</span><span class="p">:</span><span class="w"> </span><span class="n">mbarlow</span><span class="err">@</span><span class="n">SERVER</span>
+
+<span class="n">Valid</span><span class="w"> </span><span class="n">starting</span><span class="w">     </span><span class="n">Expires</span><span class="w">            </span><span class="n">Service</span><span class="w"> </span><span class="n">principal</span>
+<span class="mi">17</span><span class="o">/</span><span class="mi">04</span><span class="o">/</span><span class="mi">17</span><span class="w"> </span><span class="mi">22</span><span class="p">:</span><span class="mi">46</span><span class="p">:</span><span class="mi">32</span><span class="w">  </span><span class="mi">18</span><span class="o">/</span><span class="mi">04</span><span class="o">/</span><span class="mi">17</span><span class="w"> </span><span class="mi">22</span><span class="p">:</span><span class="mi">46</span><span class="p">:</span><span class="mi">32</span><span class="w">  </span><span class="n">krbtgt</span><span class="o">/</span><span class="n">MYREALM</span><span class="o">.</span><span class="n">NET</span><span class="err">@</span><span class="n">MYREALM</span><span class="o">.</span><span class="n">NET</span>
+</code></pre></div>
+
+<p>My autofs mount looks like the following:</p>
+<div class="highlight"><pre><span></span><code>/etc/auto.master.d/auto.server:
+/mnt/automount /etc/auto.servermaps
+</code></pre></div>
+
+<p>With the actual maps looking like:</p>
+<div class="highlight"><pre><span></span><code><span class="o">/</span><span class="nx">etc</span><span class="o">/</span><span class="kt">auto</span><span class="p">.</span><span class="nx">servermaps</span><span class="p">:</span><span class="w"> </span><span class="nx">photos</span><span class="w"> </span><span class="o">-</span><span class="nx">fstype</span><span class="p">=</span><span class="nx">cifs</span><span class="p">,</span><span class="nx">sec</span><span class="p">=</span><span class="nx">krb5</span><span class="p">,</span><span class="nx">cruid</span><span class="p">=</span><span class="err">$</span><span class="nx">USER</span><span class="p">,</span><span class="nx">uid</span><span class="p">=</span><span class="err">$</span><span class="nx">USER</span><span class="w"> </span><span class="p">:</span><span class="c1">//server/share</span>
+</code></pre></div>
+    </mainarticle>
+</div>
+<hr>
+        
+<p><i>Drop me a line using one of the contact methods </i></p>
+        
+    </maincontent>
+
+  <!-- Analytics -->
+
+  </div>
+</body>
+
+</html>
