@@ -109,16 +109,16 @@
 <p><a href="https://techcommunity.microsoft.com/t5/exchange-team-blog/new-opt-in-endpoint-available-for-smtp-auth-clients-still/ba-p/2659652">https://techcommunity.microsoft.com/t5/exchange-team-blog/new-opt-in-endpoint-available-for-smtp-auth-clients-still/ba-p/2659652</a></p>
 </blockquote>
 <p>Once enabled, you have to configured your devices to use <strong>smtp-legacy.office365.com</strong></p>
-<p><img alt="image of office365 configuration screen showing how to enable smtp-legacy.office365.com" src="static/images/screenshot-from-2022-07-23-09-22-00.png">
-Microsoft is phasing out SMTP-AUTH in favour of OAUTH</p>
+<p><img alt="image of office365 configuration screen showing how to enable smtp-legacy.office365.com" src="static/images/screenshot-from-2022-07-23-09-22-00.png"></p>
+<p>Microsoft is phasing out SMTP-AUTH in favour of OAUTH</p>
 <p>SMTP-AUTH or basic auth is getting phased out. But similarly, devices dont support OAUTH yet.</p>
 <p>So, you have to reenable SMTP-AUTH</p>
 <blockquote>
 <p><a href="https://docs.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/deprecation-of-basic-authentication-exchange-online">https://docs.microsoft.com/en-us/exchange/clients-and-mobile-in-exchange-online/deprecation-of-basic-authentication-exchange-online</a>
 <a href="https://techcommunity.microsoft.com/t5/microsoft-entra-azure-ad-blog/introducing-security-defaults/ba-p/1061414">https://techcommunity.microsoft.com/t5/microsoft-entra-azure-ad-blog/introducing-security-defaults/ba-p/1061414</a></p>
 </blockquote>
-<p>You have to enable it in exchange in screen shot above, but ALSO you need to disable default security in azure.
-<img alt="disable security defaults" src="static/images/screenshot-from-2022-07-23-09-32-50.png"></p>
+<p><img alt="disable security defaults" src="static/images/screenshot-from-2022-07-23-09-32-50.png"></p>
+<p>You have to enable it in exchange in screen shot above, but ALSO you need to disable default security in azure.</p>
 <p>Use app password since you have 2fa enabled</p>
 <p>Finally since you have 2fa enabled, you will need to create an app password for you device to use.</p>
     </mainarticle>
