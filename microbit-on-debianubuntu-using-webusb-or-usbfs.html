@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" itemscope itemtype="http://schema.org/Person">
+<head>
+  <meta charset="utf-8">
+  <!-- Site Meta Data -->
+  <title>Microbit on Debian/Ubuntu using webusb or usbfs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="Martin Barlow">
+
+  <link rel="shortcut icon" href="">
+
+  <!-- schema.org -->
+  <meta itemprop="name" content="(Marty) Martin Barlow">
+  <meta itemprop="image" content="">
+  <meta itemprop="description" content="">
+
+  <!-- Style Meta Data -->
+  <link rel="stylesheet" href="https://blog.nutmeg.at/theme/css/milligram.css" type="text/css" />
+  <link rel="stylesheet" href="https://blog.nutmeg.at/theme/css/custom.css" type="text/css" />
+
+  <!-- Feed Meta Data -->
+
+  <!-- Twitter Feed -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="">
+  <meta name="twitter:image" content="">
+
+<meta name="twitter:creator" content="">
+<meta name="twitter:url" content="https://blog.nutmeg.at/microbit-on-debianubuntu-using-webusb-or-usbfs.html">
+<meta name="twitter:title" content="(Marty) Martin Barlow ~ Microbit on Debian/Ubuntu using webusb or usbfs">
+<meta name="twitter:description" content="I use debian and ubuntu and found the documentation for using microbit was insufficient. I got permission denied errors using webusb, and git had persistent 503, 504 and 521 errors when trying to copy hex files using usbfs. I found several wiki pages online which pointed to udev solution of …">
+
+<!-- Facebook Meta Data -->
+<meta property="og:title" content="(Marty) Martin Barlow ~ Microbit on Debian/Ubuntu using webusb or usbfs" />
+<meta property="og:description" content="I use debian and ubuntu and found the documentation for using microbit was insufficient. I got permission denied errors using webusb, and git had persistent 503, 504 and 521 errors when trying to copy hex files using usbfs. I found several wiki pages online which pointed to udev solution of …" />
+<meta property="og:image" content="" />
+</head>
+
+<body>
+    <div class="container">
+
+    <!-- Navbar -->
+      <div class="navbar">
+        <ul>
+            <div>
+                <li>
+                    <a href="https://blog.nutmeg.at"><h3>(Marty) Martin Barlow</h3></a>
+                </li>
+                <li>
+                </li>
+            </div>
+        </ul>
+      </div>
+
+  <!-- Sidebar -->
+    <sidebar>
+        <ul class="static-item">
+
+        </ul>        
+
+        <ul>
+        </ul>
+
+   
+        <p> 
+                <span>
+                    <a href="https://www.linkedin.com/in/mabarlow" target="_blank">
+                        <img class="social-icons-m" src="https://blog.nutmeg.at/theme/images/icons/linkedin.png">
+                    </a>
+                </span>
+                <span>
+                    <a href="https://mastodon.social/@martybarlow" target="_blank">
+                        <img class="social-icons-m" src="https://blog.nutmeg.at/theme/images/icons/mastodon.png">
+                    </a>
+                </span>
+                <span>
+                    <a href="https://signal.me/#eu/balhA_0L4DZVW5kM8oJ4KhN8TRgLyRO3VaH_RXp7v3moGDnIxh5KFYjjGvsmTVZC" target="_blank">
+                        <img class="social-icons-m" src="https://blog.nutmeg.at/theme/images/icons/signal.png">
+                    </a>
+                </span>
+        </p>
+        <p>
+        </p>
+        <p>
+        </p>
+    </sidebar>
+    
+    <maincontent>
+<h2>
+    <a href="https://blog.nutmeg.at/microbit-on-debianubuntu-using-webusb-or-usbfs.html" rel="bookmark" title="Permalink to Microbit on Debian/Ubuntu using webusb or usbfs">Microbit on Debian/Ubuntu using webusb or usbfs</a>
+</h2>
+
+<div>
+    <b>On: </b>Tue 08 April 2025
+    <hr>
+</div>
+
+<div>
+    <mainarticle>
+    <p>I use debian and ubuntu and found the <a href="https://microbit.org/get-started/user-guide/transfer-code-to-the-microbit/">documentation for using microbit</a> was insufficient.</p>
+<p>I got permission denied errors using webusb, and git had <a href="https://support.microbit.org/support/solutions/articles/19000016969-micro-bit-error-codes">persistent 503, 504 and 521 errors</a> when trying to copy hex files using usbfs.</p>
+<p>I found several wiki pages online which pointed to udev solution of webusb, but none for usbfs. I reached out to microbit support, who said issue was the mount needed the  <em>sync</em> option
+similar too:</p>
+<div class="highlight"><pre><span></span><code><span class="nx">mount</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">grep</span><span class="w"> </span><span class="nx">MICROBIT</span>
+<span class="o">/</span><span class="nx">dev</span><span class="o">/</span><span class="nx">sdb</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="o">/</span><span class="nx">media</span><span class="o">/</span><span class="err">$</span><span class="nx">USER</span><span class="o">/</span><span class="nx">MICROBIT</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="nx">vfat</span><span class="w"> </span><span class="p">(</span><span class="nx">rw</span><span class="p">,</span><span class="nx">nosuid</span><span class="p">,</span><span class="nx">nodev</span><span class="p">,</span><span class="nx">relatime</span><span class="p">,</span><span class="nx">sync</span><span class="p">,</span><span class="nx">uid</span><span class="p">=</span><span class="mi">1115</span><span class="p">,</span><span class="nx">gid</span><span class="p">=</span><span class="mi">1115</span><span class="p">,</span><span class="nx">fmask</span><span class="p">=</span><span class="mi">0022</span><span class="p">,</span><span class="nx">dmask</span><span class="p">=</span><span class="mi">0022</span><span class="p">,</span><span class="nx">codepage</span><span class="p">=</span><span class="mi">437</span><span class="p">,</span><span class="nx">iocharset</span><span class="p">=</span><span class="nx">ascii</span><span class="p">,</span><span class="nx">shortname</span><span class="p">=</span><span class="nx">mixed</span><span class="p">,</span><span class="nx">showexec</span><span class="p">,</span><span class="nx">utf8</span><span class="p">,</span><span class="nx">errors</span><span class="p">=</span><span class="nx">remount</span><span class="o">-</span><span class="nx">ro</span><span class="p">,</span><span class="nx">uhelper</span><span class="p">=</span><span class="nx">udisks2</span><span class="p">)</span>
+</code></pre></div>
+
+<p>So, the full solution is to create a udeb rule similar too:</p>
+<div class="highlight"><pre><span></span><code>SUBSYSTEM==&quot;usb&quot;, ATTR{idVendor}==&quot;0d28&quot;, ATTR{idProduct}==&quot;0204&quot; \
+  MODE=&quot;0666&quot;
+SUBSYSTEM==&quot;block&quot;, ENV{ID_FS_LABEL}==&quot;MICROBIT&quot;, \
+  ENV{UDISKS_MOUNT_OPTIONS_VFAT_DEFAULTS}=&quot;uid=$UID,gid=$GID,shortname=mixed,utf8=1,showexec,sync&quot; \
+  ENV{UDISKS_MOUNT_OPTIONS_VFAT_ALLOW}=&quot;uid=$UID,gid=$GID,shortname=mixed,utf8=1,showexec,sync&quot;
+</code></pre></div>
+
+<p>Reload the udev rules</p>
+<div class="highlight"><pre><span></span><code><span class="n">sudo</span><span class="w"> </span><span class="n">udevadm</span><span class="w"> </span><span class="n">control</span><span class="w"> </span><span class="o">--</span><span class="n">reload</span><span class="o">-</span><span class="n">rules</span>
+</code></pre></div>
+    </mainarticle>
+</div>
+<hr>
+        
+<p><i>Drop me a line using one of the contact methods </i></p>
+        
+    </maincontent>
+
+  <!-- Analytics -->
+
+  </div>
+</body>
+
+</html>
