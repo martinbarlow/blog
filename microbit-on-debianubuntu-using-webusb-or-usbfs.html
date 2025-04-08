@@ -106,12 +106,25 @@ similar too:</p>
 <span class="o">/</span><span class="nx">dev</span><span class="o">/</span><span class="nx">sdb</span><span class="w"> </span><span class="nx">on</span><span class="w"> </span><span class="o">/</span><span class="nx">media</span><span class="o">/</span><span class="err">$</span><span class="nx">USER</span><span class="o">/</span><span class="nx">MICROBIT</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="nx">vfat</span><span class="w"> </span><span class="p">(</span><span class="nx">rw</span><span class="p">,</span><span class="nx">nosuid</span><span class="p">,</span><span class="nx">nodev</span><span class="p">,</span><span class="nx">relatime</span><span class="p">,</span><span class="nx">sync</span><span class="p">,</span><span class="nx">uid</span><span class="p">=</span><span class="mi">1115</span><span class="p">,</span><span class="nx">gid</span><span class="p">=</span><span class="mi">1115</span><span class="p">,</span><span class="nx">fmask</span><span class="p">=</span><span class="mi">0022</span><span class="p">,</span><span class="nx">dmask</span><span class="p">=</span><span class="mi">0022</span><span class="p">,</span><span class="nx">codepage</span><span class="p">=</span><span class="mi">437</span><span class="p">,</span><span class="nx">iocharset</span><span class="p">=</span><span class="nx">ascii</span><span class="p">,</span><span class="nx">shortname</span><span class="p">=</span><span class="nx">mixed</span><span class="p">,</span><span class="nx">showexec</span><span class="p">,</span><span class="nx">utf8</span><span class="p">,</span><span class="nx">errors</span><span class="p">=</span><span class="nx">remount</span><span class="o">-</span><span class="nx">ro</span><span class="p">,</span><span class="nx">uhelper</span><span class="p">=</span><span class="nx">udisks2</span><span class="p">)</span>
 </code></pre></div>
 
-<p>So, the full solution is to create a udeb rule <em>/etc/udev/rules.d/99-microbit.rules</em> similar too:</p>
+<p>So, the full solution is to create a udeb rule <em>/etc/udev/rules.d/99-microbit-webusb.rules</em> similar too:</p>
 <div class="highlight"><pre><span></span><code>SUBSYSTEM==&quot;usb&quot;, ATTR{idVendor}==&quot;0d28&quot;, ATTR{idProduct}==&quot;0204&quot; \
   MODE=&quot;0666&quot;
-SUBSYSTEM==&quot;block&quot;, ENV{ID_FS_LABEL}==&quot;MICROBIT&quot;, \
-  ENV{UDISKS_MOUNT_OPTIONS_VFAT_DEFAULTS}=&quot;uid=$UID,gid=$GID,shortname=mixed,utf8=1,showexec,sync&quot; \
-  ENV{UDISKS_MOUNT_OPTIONS_VFAT_ALLOW}=&quot;uid=$UID,gid=$GID,shortname=mixed,utf8=1,showexec,sync&quot;
+</code></pre></div>
+
+<p>and <em>/etc/udev/rules.d/99-microbit-usbfs.rules</em>:</p>
+<div class="highlight"><pre><span></span><code><span class="gh">#</span>
+# Skip if not a block device or if requested by other rules
+<span class="gh">#</span>
+SUBSYSTEM!=&quot;block&quot;, GOTO=&quot;microbit_udisks_mount_options_end&quot;
+ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}==&quot;?*&quot;, GOTO=&quot;microbit_udisks_mount_options_end&quot;
+
+<span class="gh">#</span>
+# Add sync option
+<span class="gh">#</span>
+SUBSYSTEMS==&quot;usb&quot;, ENV{ID_FS_USAGE}==&quot;filesystem&quot;, \
+ATTRS{idVendor}==&quot;0d28&quot;, ENV{UDISKS_MOUNT_OPTIONS_DEFAULTS}=&quot;sync&quot;
+
+LABEL=&quot;microbit_udisks_mount_options_end&quot;
 </code></pre></div>
 
 <p>Reload the udev rules</p>
